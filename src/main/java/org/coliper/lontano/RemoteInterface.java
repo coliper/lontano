@@ -57,8 +57,7 @@ class RemoteInterface {
         return this.operationMap.keySet();
     }
 
-    ReturnValueWrapper callOperation(RemoteOperationName opName, String[] jsonParameters)
-            throws Exception {
+    Object callOperation(RemoteOperationName opName, String[] jsonParameters) throws Exception {
         requireNonNull(jsonParameters, "jsonParameters");
         final RemoteOperation operation = this.operationMap.get(requireNonNull(opName, "opName"));
         checkState(operation != null, "unknown operation %s", opName);

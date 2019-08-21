@@ -5,8 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.junit.internal.Throwables;
-
+import com.google.common.base.Throwables;
 import com.google.common.primitives.Primitives;
 
 class RemoteOperation {
@@ -30,13 +29,12 @@ class RemoteOperation {
         this.parameterTypes = retrieveParameterTypes(method);
     }
 
-    ReturnValueWrapper call(Object[] parameters) throws Exception {
+    Object call(Object[] parameters) throws Exception {
         try {
-            final Object returnValue =
-                    method.invoke(this.targetObject, requireNonNull(parameters, "parameters"));
-            return new ReturnValueWrapper(returnValue);
+            return method.invoke(this.targetObject, requireNonNull(parameters, "parameters"));
         } catch (InvocationTargetException e) {
-            throw Throwables.rethrowAsException(e.getTargetException());
+            Throwables.throwIfUnchecked(e.getTargetException());
+            throw (Exception) e.getTargetException();
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new RuntimeException("unexpected exception " + e, e);
         }
