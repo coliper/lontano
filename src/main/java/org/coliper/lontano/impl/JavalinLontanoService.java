@@ -22,7 +22,6 @@ public class JavalinLontanoService extends AbstractLontanoService<JavalinLontano
     private static final String DEFAULT_WRAPPER_PATH = "client.js";
     private static final String JAVASCRIPT_CONTENT_TYPE = "text/javascript; charset=UTF-8";
 
-    private String rootPath = DEFAULT_ROOT_PATH;
     private String wrapperPath = DEFAULT_WRAPPER_PATH;
 
     public JavalinLontanoService() {
@@ -33,26 +32,22 @@ public class JavalinLontanoService extends AbstractLontanoService<JavalinLontano
         return JavalinJson.fromJson(json, expectedType);
     }
 
-    public JavalinLontanoService rootPath(String rootPath) {
-        requireNonNull(rootPath, "rootPath");
-        Preconditions.checkArgument(rootPath.endsWith(URI_PATH_SEPARATOR),
-                "root path '%s' does not end with a %s", rootPath, URI_PATH_SEPARATOR);
-        this.rootPath = rootPath;
-        return this;
-    }
-
     public JavalinLontanoService wrapperPath(String wrapperPath) {
         this.wrapperPath = requireNonNull(wrapperPath, "wrapperPath");
         return this;
     }
 
     public void registerWithJavalin(Javalin javalin) {
+        this.registerWithJavalin(javalin, DEFAULT_ROOT_PATH);
+    }
+
+    public void registerWithJavalin(Javalin javalin, String rootPath) {
         requireNonNull(javalin, "javalin");
-        final String operationCallPath =
-                this.rootPath + PATH_PARAMETER_MARKER + PATH_PARAMETER_INTERFACE
-                        + URI_PATH_SEPARATOR + PATH_PARAMETER_MARKER + PATH_PARAMETER_OPERATION;
+        requireNonNull(rootPath, "rootPath");
+        final String operationCallPath = rootPath + PATH_PARAMETER_MARKER + PATH_PARAMETER_INTERFACE
+                + URI_PATH_SEPARATOR + PATH_PARAMETER_MARKER + PATH_PARAMETER_OPERATION;
         javalin.post(operationCallPath, this::handleOperationCall);
-        final String wrapperPath = this.rootPath + this.wrapperPath;
+        final String wrapperPath = rootPath + this.wrapperPath;
         javalin.get(wrapperPath, this::handleWrapperCall);
     }
 
